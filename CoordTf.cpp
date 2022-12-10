@@ -6,6 +6,81 @@
 
 #include "CoordTf.h"
 
+CoordTf::MATRIX CoordTf::MATRIX::operator*(MATRIX mat) {
+	CoordTf::MATRIX t = {};
+	MatrixMultiply(&t, this, &mat);
+	return t;
+}
+
+CoordTf::VECTOR4 CoordTf::VECTOR4::operator+(VECTOR4 v4) {
+	CoordTf::VECTOR4 t = {};
+	t.x = x + v4.x;
+	t.y = y + v4.y;
+	t.z = z + v4.z;
+	t.w = w + v4.w;
+	return t;
+}
+
+CoordTf::VECTOR4 CoordTf::VECTOR4::operator-(VECTOR4 v4) {
+	CoordTf::VECTOR4 t = {};
+	t.x = x - v4.x;
+	t.y = y - v4.y;
+	t.z = z - v4.z;
+	t.w = w - v4.w;
+	return t;
+}
+
+CoordTf::VECTOR4 CoordTf::VECTOR4::operator=(VECTOR4 v4) {
+	x = v4.x;
+	y = v4.y;
+	z = v4.z;
+	w = v4.w;
+	return *this;
+}
+
+CoordTf::VECTOR3 CoordTf::VECTOR3::operator+(VECTOR3 v3) {
+	CoordTf::VECTOR3 t = {};
+	t.x = x + v3.x;
+	t.y = y + v3.y;
+	t.z = z + v3.z;
+	return t;
+}
+
+CoordTf::VECTOR3 CoordTf::VECTOR3::operator-(VECTOR3 v3) {
+	CoordTf::VECTOR3 t = {};
+	t.x = x - v3.x;
+	t.y = y - v3.y;
+	t.z = z - v3.z;
+	return t;
+}
+
+CoordTf::VECTOR3 CoordTf::VECTOR3::operator=(VECTOR3 v3) {
+	x = v3.x;
+	y = v3.y;
+	z = v3.z;
+	return *this;
+}
+
+CoordTf::VECTOR2 CoordTf::VECTOR2::operator+(VECTOR2 v2) {
+	CoordTf::VECTOR2 t = {};
+	t.x = x + v2.x;
+	t.y = y + v2.y;
+	return t;
+}
+
+CoordTf::VECTOR2 CoordTf::VECTOR2::operator-(VECTOR2 v2) {
+	CoordTf::VECTOR2 t = {};
+	t.x = x - v2.x;
+	t.y = y - v2.y;
+	return t;
+}
+
+CoordTf::VECTOR2 CoordTf::VECTOR2::operator=(VECTOR2 v2) {
+	x = v2.x;
+	y = v2.y;
+	return *this;
+}
+
 void CoordTf::MatrixIdentity(MATRIX* mat) {
 	mat->_11 = 1.0f; mat->_12 = 0.0f; mat->_13 = 0.0f; mat->_14 = 0.0f;
 	mat->_21 = 0.0f; mat->_22 = 1.0f; mat->_23 = 0.0f; mat->_24 = 0.0f;
@@ -288,4 +363,35 @@ void CoordTf::StraightLinear(MATRIX* out, MATRIX* start, MATRIX* end, float t) {
 			out->m[y][x] = start->m[y][x] * (1.0f - t) + end->m[y][x] * t;
 		}
 	}
+}
+
+CoordTf::VECTOR3 CoordTf::CalcTangent(VECTOR3 pos0, VECTOR3 pos1, VECTOR3 pos2,
+	VECTOR2 uv0, VECTOR2 uv1, VECTOR2 uv2, VECTOR3 normal) {
+
+	VECTOR3 deltaPos1 = pos1 - pos0;
+	VECTOR3 deltaPos2 = pos2 - pos0;
+
+	VECTOR2 deltaUV1 = uv1 - uv0;
+	VECTOR2 deltaUV2 = uv2 - uv0;
+
+	float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
+
+	VectorMultiply(&deltaPos1, deltaUV2.y);
+	VectorMultiply(&deltaPos2, deltaUV1.y);
+	VECTOR3 tangent = deltaPos1 - deltaPos2;
+
+	VectorMultiply(&deltaPos2, deltaUV1.x);
+	VectorMultiply(&deltaPos1, deltaUV2.x);
+	VECTOR3 bitangent = deltaPos2 - deltaPos1;
+
+	VECTOR3 out = {};
+	VectorCross(&out, &normal, &tangent);
+
+	if (VectorDot(&out, &bitangent) < 0.0f) {
+		tangent.x *= -1.0f;
+		tangent.y *= -1.0f;
+		tangent.z *= -1.0f;
+	}
+
+	return tangent;
 }

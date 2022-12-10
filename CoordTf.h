@@ -25,6 +25,8 @@ namespace CoordTf {
 			};
 			float m[4][4];
 		};
+
+		MATRIX operator*(MATRIX mat);
 	};
 
 	struct VECTOR4 {
@@ -39,6 +41,10 @@ namespace CoordTf {
 			z = z1;
 			w = w1;
 		}
+
+		VECTOR4 operator+(VECTOR4 v4);
+		VECTOR4 operator-(VECTOR4 v4);
+		VECTOR4 operator=(VECTOR4 v4);
 	};
 
 	struct VECTOR3 {
@@ -51,6 +57,10 @@ namespace CoordTf {
 			y = y1;
 			z = z1;
 		}
+
+		VECTOR3 operator+(VECTOR3 v3);
+		VECTOR3 operator-(VECTOR3 v3);
+		VECTOR3 operator=(VECTOR3 v3);
 	};
 
 	struct VECTOR2 {
@@ -61,6 +71,10 @@ namespace CoordTf {
 			x = x1;
 			y = y1;
 		}
+
+		VECTOR2 operator+(VECTOR2 v2);
+		VECTOR2 operator-(VECTOR2 v2);
+		VECTOR2 operator=(VECTOR2 v2);
 	};
 
 	//行列初期化
@@ -107,6 +121,9 @@ namespace CoordTf {
 	float VectorDot(VECTOR3* in1, VECTOR3* in2);
 	//線形補間
 	void StraightLinear(MATRIX* out, MATRIX* start, MATRIX* end, float t);
+	//接ベクトル計算
+	VECTOR3 CalcTangent(VECTOR3 pos0, VECTOR3 pos1, VECTOR3 pos2,
+		VECTOR2 uv0, VECTOR2 uv1, VECTOR2 uv2, VECTOR3 normal);
 }
 
 #endif
